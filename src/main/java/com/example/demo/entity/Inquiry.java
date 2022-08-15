@@ -23,7 +23,6 @@ public class Inquiry {
 		this.created = created;
 	}
 
-
 	public int getId() {
 		return id;
 	}

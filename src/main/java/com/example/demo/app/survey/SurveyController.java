@@ -1,5 +1,8 @@
 package com.example.demo.app.survey;
 
+import com.example.demo.entity.Survey;
+import com.example.demo.service.SurveyService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -10,6 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 /*
  * Add annotations here
  */
@@ -17,16 +23,20 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/survey")
 public class SurveyController {
 	
-//	private final SurveyService surveyService;
-	
-//	public SurveyController(SurveyService surveyService){
-//		this.surveyService = surveyService;
-//	}
+	private final SurveyService surveyService;
+
+	@Autowired
+	public SurveyController(SurveyService surveyService){
+		this.surveyService = surveyService;
+	}
 	
 	@GetMapping
 	public String index(Model model) {
-		
+
+		List<Survey> list = surveyService.getAll();
 		//hands-on
+		model.addAttribute("surveyList", list);
+
 		model.addAttribute("title", "Survey");
 		return "survey/index";
 	}
@@ -64,10 +74,19 @@ public class SurveyController {
 	public String complete(@Validated SurveyForm surveyForm, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
 		
 		//hands-on
-//		model.addAttribute("title", "SurveyForm");
+		model.addAttribute("title", "SurveyForm");
 		if (result.hasErrors()) {
 			return "survey/form";
 		}
+
+		Survey survey = new Survey();
+		survey.setAge(surveyForm.getAge());
+		survey.setSatisfaction(surveyForm.getSatisfaction());
+		survey.setComment(surveyForm.getComment());
+		survey.setCreated(LocalDateTime.now());
+
+		surveyService.save(survey);
+
 		redirectAttributes.addFlashAttribute("complete", "Registered!");
 		return "redirect:/survey/form";
 	}
